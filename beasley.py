@@ -3,7 +3,7 @@ import utils
 from graph import *
 
 
-def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,int), tmax : int, nbVehicules :int, heuristic = farthest_insertion):
+def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,int), tmax : int, nbVehicules :int, heuristic):
     """Algorithme de Beasley pour le TOP"""
     heuristic_path = heuristic(graph.getNodes(),starting_point,ending_point)
     convoy = []

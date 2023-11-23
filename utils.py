@@ -38,7 +38,7 @@ def read_file_and_create_graph(file_path):
     """Lecture d'une instance et conversion en objet Graph"""
     with open(file_path, 'r') as file:
         # Ignorer les trois premières lignes
-        nbNodes = int(file.readline().removeprefix("n ").removesuffix("\n"))
+        file.readline() # On skip la ligne de nombre de noeuds
         nbVehicules = int(file.readline().removeprefix("m ").removesuffix("\n"))
         tmax =  float(file.readline().removeprefix("tmax ").removesuffix("\n"))
         nodes = []
@@ -75,7 +75,6 @@ def generate_convoy(nbVehicules, paths, profits):
     n = nbVehicules if len(paths)>=nbVehicules else len(paths)
     # Générer toutes les combinaisons de taille 'size'
     for comb in combinations(paths, n):
-        # Permuter les chemins dans chaque combinaison
         used_nodes = []
         valid_combination = True
         for path in comb :

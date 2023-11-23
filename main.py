@@ -1,6 +1,7 @@
 from beasley import *
 from utils import *
 import time
+from TSP_heuristics import *
 
 if __name__ == "__main__":
     for c in list(map(chr, range(ord('b'), ord('r') + 1))):
