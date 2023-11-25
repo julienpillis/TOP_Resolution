@@ -1,9 +1,11 @@
 import matplotlib
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import math
 from itertools import combinations
 from graph import *
+
 
 def visualize_paths(coordinates, paths, profit, exec_time):
     """Visualisation d'une solution du problème TOP"""
@@ -23,7 +25,8 @@ def visualize_paths(coordinates, paths, profit, exec_time):
     plt.xlabel('Coordonnée X')
     plt.ylabel('Coordonnée Y')
     plt.legend()
-    plt.text(0.5, -0.1, f"Profit : {profit}| Execution Time : {exec_time}", ha='center', va='center', transform=plt.gca().transAxes,
+    plt.text(0.5, -0.1, f"Profit : {profit}| Execution Time : {exec_time}", ha='center', va='center',
+             transform=plt.gca().transAxes,
              bbox=dict(facecolor='white', alpha=0.8))
     plt.grid(True)
     plt.show()
@@ -38,18 +41,18 @@ def read_file_and_create_graph(file_path):
     """Lecture d'une instance et conversion en objet Graph"""
     with open(file_path, 'r') as file:
         # Ignorer les trois premières lignes
-        file.readline() # On skip la ligne de nombre de noeuds
+        file.readline()  # On skip la ligne de nombre de noeuds
         nbVehicules = int(file.readline().removeprefix("m ").removesuffix("\n"))
-        tmax =  float(file.readline().removeprefix("tmax ").removesuffix("\n"))
+        tmax = float(file.readline().removeprefix("tmax ").removesuffix("\n"))
         nodes = []
         profits = {}
 
         for line in file:
-            x,y,profit = line.split("\t")
-            nodes.append((float(x),(float(y))))
-            profits[(float(x),float(y))] = int(profit)
+            x, y, profit = line.split("\t")
+            nodes.append((float(x), (float(y))))
+            profits[(float(x), float(y))] = int(profit)
 
-    return Graph(nodes,times_calculator(nodes),profits,tmax,nbVehicules)
+    return Graph(nodes, times_calculator(nodes), profits, tmax, nbVehicules)
 
 
 def times_calculator(points):
@@ -57,40 +60,45 @@ def times_calculator(points):
     times = {}
     for i in range(len(points)):
         for j in range(len(points)):
-            if i!=j :
-                times[(points[i],points[j])] = distance(points[i], points[j])
+            if i != j:
+                times[(points[i], points[j])] = distance(points[i], points[j])
     return times
+
 
 def calculate_profit(path, profits):
     # Calcul du profit total du trajet
     return sum(profits[node] for node in path)
 
+
 def calculate_time(path, times):
     # Calcul de la durée du trajet
-    return sum(times[(path[i],path[i+1])] for i in range(len(path)-1))
+    return sum(times[(path[i], path[i + 1])] for i in range(len(path) - 1))
 
-def generate_convoy(nbVehicules, paths, profits):
+
+def generate_convoy(nbVehicules, paths, profits, nodes):
     """Attribution des tournées"""
-    all_combinations = []
-    n = nbVehicules if len(paths)>=nbVehicules else len(paths)
-    # Générer toutes les combinaisons de taille 'size'
-    for comb in combinations(paths, n):
-        used_nodes = []
-        valid_combination = True
-        for path in comb :
-            for node in path[1:-1]:
-                if node in used_nodes:
-                    valid_combination = False
-                else : used_nodes.append(node)
+    if not paths:
+        return None, -1
 
-        if valid_combination:
-            all_combinations.append(comb)
+    n = nbVehicules if len(paths) >= nbVehicules else len(paths)
 
-    # Calcul des maxs
-    evaluated_combination = []
-    for combination in all_combinations :
-        evaluated_combination.append((combination,sum(calculate_profit(path,profits)for path in combination)))
-    # On tri selon les profits
-    evaluated_combination.sort(key=lambda x: x[1], reverse=True)
-    if len(evaluated_combination)>0 : return evaluated_combination[0]
-    return []
+    to_study = [path for path in paths]
+
+    # Recherche des chemins avec des noeuds communs
+    for node in nodes:
+        paths_with_node = []
+        # Filtrer les chemins qui contiennent le nœud spécifié
+        for path in to_study:
+            if node in path[1:-1]:
+                paths_with_node.append(path)
+
+        if paths_with_node:
+            # Si des chemins avec une même noeud commun ont été trouvés, on ne garde que le meilleur
+            chemin_maximal = max(paths_with_node, key=lambda path: calculate_profit(path, profits))
+            paths_with_node.remove(chemin_maximal)
+            for path in paths_with_node:
+                to_study.remove(path)
+        # inutile de continuer si tous les chemins ont été étudiés
+
+    to_study.sort(key=lambda path: calculate_profit(path, profits), reverse=True)
+    return to_study[:n],sum(calculate_profit(path,profits) for path in to_study[:n])

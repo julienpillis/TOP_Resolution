@@ -7,10 +7,13 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
     """Algorithme de Beasley pour le TOP"""
     heuristic_path = heuristic(graph.getNodes(),starting_point,ending_point)
     convoy = []
-    paths = []
+    paths = [] # Garde les chemins qui compatibles (temps <tmax)
+
+    #utils.visualize_paths(graph.nodes, [heuristic_path], 0, 0)
     # On supprime les noeuds de départ et d'arrivée. Ils seront automatiquement ajouté dans un chemin
     heuristic_path.pop(heuristic_path.index(starting_point))
     heuristic_path.pop(heuristic_path.index(ending_point))
+
     for i in range(len(heuristic_path)):
         path = [starting_point, ending_point]
         j = i
@@ -31,7 +34,8 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
             else :
                 # Si tmax dépassé, on ne tente plus d'insertion
                 continue_insertion = False
-    solution,profits = utils.generate_convoy(nbVehicules, paths, graph.profits)
+    #utils.visualize_paths(graph.nodes, [path for path in paths], 0, 0)
+    solution,profits = utils.generate_convoy(nbVehicules, paths, graph.profits,graph.nodes)
     print("Sum Time before 2-Opt :", sum([utils.calculate_time(solution[i], graph.times) for i in range(len(solution))]))
     print("Sum Profits before 2-Opt :", profits)
     profits = 0
