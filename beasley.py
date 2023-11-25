@@ -36,29 +36,29 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
                 continue_insertion = False
     #utils.visualize_paths(graph.nodes, [path for path in paths], 0, 0)
     solution,profits = utils.generate_convoy(nbVehicules, paths, graph.profits,graph.nodes)
-    print("Sum Time before 2-Opt :", sum([utils.calculate_time(solution[i], graph.times) for i in range(len(solution))]))
-    print("Sum Profits before 2-Opt :", profits)
-    profits = 0
-    solution = list(solution)
-    for i in range(len(solution)):
-        better_path= two_opt(solution[i],graph.maxTime,graph.profits,graph.times,graph.nodes)
-        if better_path != []:
-            solution[i] = [node for node in better_path]
-        profits += utils.calculate_profit(solution[i],graph.profits)
-
-    print("Sum Time after 2-Opt :", sum([utils.calculate_time(solution[i], graph.times) for i in range(len(solution))]))
-    print("Sum Profits after 2-Opt :", profits)
     if solution == [] : return [],profits
-    else : return solution,profits
+    else :
+        print("Sum Profits before 2-Opt :", profits)
+        profits = 0
+        solution = list(solution)
+        for i in range(len(solution)):
+            used_nodes = utils.extract_inner_tuples(solution)
+            print("(Before 2-Opt) Time path n°", i, "=", utils.calculate_time(solution[i], graph.times))
+            better_path= two_opt(solution[i],graph.maxTime,graph.profits,graph.times,graph.nodes,used_nodes)
+            if better_path != []:
+                solution[i] = [node for node in better_path]
+            profits += utils.calculate_profit(solution[i],graph.profits)
+            print("(After 2-Opt) Time path n°",i,"=",utils.calculate_time(solution[i],graph.times))
 
-def two_opt(path,tmax, profits,times,nodes):
-    delta_min = float("inf")
+        print("Sum Profits after 2-Opt :", profits)
+        return solution, profits
+
+def two_opt(path,tmax, profits,times,nodes,used_nodes):
 
     # Génération des couples de noeuds
     edges = []
     better_path = []
     better_time = utils.calculate_time(path,times)
-    #better_profit = calculate_profit(path,profits)
     for i in range(len(path) - 1):
         edges.append((path[i], path[i+1]))
 
@@ -74,7 +74,6 @@ def two_opt(path,tmax, profits,times,nodes):
             edge_idx_second = tmp_path.index(edge2[0])
             tmp_path[edge_idx_first],tmp_path[edge_idx_second] = tmp_path[edge_idx_second],tmp_path[edge_idx_first]
 
-            #tmp_profit = calculate_profit(tmp_path,profits)
             tmp_time = utils.calculate_time(tmp_path,times)
             # Si la durée du nouveau chemin est améliorée, on enregistre le chemin
             if tmp_time<better_time : #and tmp_profit>better_profit:
@@ -82,28 +81,37 @@ def two_opt(path,tmax, profits,times,nodes):
                 better_path = [node for node in tmp_path]
                 better_time= tmp_time
                 #better_profit = tmp_profit
-    if better_path != []:
-        insert_nearest_nodes(nodes,better_path, tmax, times)
+    if better_path == []:
+        better_path = [node for node in path]
+
+    # Ajout des noeuds les plus proches et insérables TO DO: voir si déplacer en dehors de la fonction
+    better_path,inserted = insert_nearest_free_node(nodes,better_path, tmax, times,profits,used_nodes)
     return better_path
 
-def insert_nearest_nodes(coords, path , tmax ,times):
-    """Recherche des points les plus proches du chemin"""
-    node_inserted = False
-    min = float("inf")
-    for i in range(len(path) - 1):
-        for new_node in coords:
-            if new_node not in path:
-                # Calcul de la distance du noeud par rapport à chaque arête du chemin
-                distance_to_node = utils.distance(path[i], new_node) + utils.distance(new_node, path[i + 1])
-                if distance_to_node <= tmax - utils.calculate_time(path,times) and distance_to_node < min:
-                    # Si l'ajout du noeud ne fait pas dépasser la durée maximale du trajet, on peut l'ajouter
-                    nearest_node = new_node
-                    idx_to_be_placed = path.index(path[i])+1
-                    node_inserted = True
-    if node_inserted :
-        path.insert(idx_to_be_placed,nearest_node)
 
-    return node_inserted
+def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
+    """Recherche des points les plus proches du chemin"""
+    better_path = [node for node in path]
+    node_inserted = True
+    nearest_profit = 0
+    while node_inserted:
+        node_inserted = False
+        for i in range(len(better_path) - 1):
+            for new_node in coords:
+                if new_node not in used_nodes:
+                    # Calcul de la pénalité (detour) que fait coûter l'ajout du noeud
+                    detour = utils.distance(better_path[i], new_node) + utils.distance(new_node, better_path[i + 1]) - utils.distance(better_path[i], better_path[i + 1])
+                    if utils.calculate_time(better_path, times) + detour <= tmax and nearest_profit < profits[new_node]:
+                        # Si l'ajout du noeud ne fait pas dépasser la durée maximale du trajet, on peut l'ajouter
+                        nearest_node = new_node
+                        nearest_profit = profits[new_node]
+                        idx_to_be_placed = better_path.index(better_path[i]) + 1
+                        node_inserted = True
+
+        if node_inserted :
+            better_path.insert(idx_to_be_placed, nearest_node)
+
+    return better_path,node_inserted
 
 
 

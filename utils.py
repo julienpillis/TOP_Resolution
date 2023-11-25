@@ -3,7 +3,6 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import math
-from itertools import combinations
 from graph import *
 
 
@@ -78,7 +77,7 @@ def calculate_time(path, times):
 def generate_convoy(nbVehicules, paths, profits, nodes):
     """Attribution des tournées"""
     if not paths:
-        return None, -1
+        return [], -1
 
     n = nbVehicules if len(paths) >= nbVehicules else len(paths)
 
@@ -102,3 +101,11 @@ def generate_convoy(nbVehicules, paths, profits, nodes):
 
     to_study.sort(key=lambda path: calculate_profit(path, profits), reverse=True)
     return to_study[:n],sum(calculate_profit(path,profits) for path in to_study[:n])
+
+def extract_inner_tuples(array_of_tuples):
+    """Extraire les tuples d'une liste de tuples"""
+    inner_tuples = []
+    for outer_tuple in array_of_tuples:
+        for inner_tuple in outer_tuple:
+            inner_tuples.append(inner_tuple)
+    return inner_tuples

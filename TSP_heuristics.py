@@ -144,7 +144,7 @@ def fletcher(points, starting_point, ending_point):
     times = sorted(times.items(), key=lambda t: t[1]) # Tri par ordre croissant des distances
     times = [time[0] for time in times]
     while len(times) > 0:
-        used_nodes = extract_inner_tuples(edges)
+        used_nodes = utils.extract_inner_tuples(edges)
         if times[0][0] not in used_nodes and times [0][1] not in used_nodes :
             # Si aucun noeud est extrémité d'une arête, on peut les ajouter sans problème
             edges.append((times[0][0],times[0][1]))
@@ -174,7 +174,7 @@ def fletcher(points, starting_point, ending_point):
 
 
     # Réordonnancement du tableau
-    no_match = [node for node in extract_inner_tuples(edges) if extract_inner_tuples(edges).count(node)==1] # Récupération des noeuds n'ayant pas 2 arêtes
+    no_match = [node for node in utils.extract_inner_tuples(edges) if utils.extract_inner_tuples(edges).count(node)==1] # Récupération des noeuds n'ayant pas 2 arêtes
     ordered_edges = [(starting_point,no_match[0])]
     while len(edges) > 0:
         match = [edge for edge in edges if edge[0]==ordered_edges[-1][1] or edge[1]==ordered_edges[-1][1]] # Récupération de l'arête ayant le même sommet que le 2ème noeud de la dernière arête
@@ -186,15 +186,6 @@ def fletcher(points, starting_point, ending_point):
     ordered_edges.append((ordered_edges[-1][1],ending_point))
     return [edge[0] for edge in ordered_edges]+[ending_point]
 
-
-
-def extract_inner_tuples(array_of_tuples):
-    """Extraire les tuples d'une liste de tuples"""
-    inner_tuples = []
-    for outer_tuple in array_of_tuples:
-        for inner_tuple in outer_tuple:
-            inner_tuples.append(inner_tuple)
-    return inner_tuples
 
 class UnionFind:
     def __init__(self, size):
