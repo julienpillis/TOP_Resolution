@@ -76,18 +76,46 @@ def two_opt(path,tmax, profits,times,nodes,used_nodes):
 
             tmp_time = utils.calculate_time(tmp_path,times)
             # Si la durée du nouveau chemin est améliorée, on enregistre le chemin
-            if tmp_time<better_time : #and tmp_profit>better_profit:
+            if tmp_time<better_time :
                 # Sauvegarde du chemin en comme un meilleur chemin
                 better_path = [node for node in tmp_path]
                 better_time= tmp_time
-                #better_profit = tmp_profit
-    if better_path == []:
+
+    if not better_path:
         better_path = [node for node in path]
 
     # Ajout des noeuds les plus proches et insérables TO DO: voir si déplacer en dehors de la fonction
     better_path,inserted = insert_nearest_free_node(nodes,better_path, tmax, times,profits,used_nodes)
     return better_path
 
+def three_opt(path, tmax, profits, times, nodes, used_nodes):
+    edges = []
+    better_path = []
+    better_time = utils.calculate_time(path, times)
+
+    for i in range(len(path) - 1):
+        edges.append((path[i], path[i+1]))
+
+    for edge1, edge2, edge3 in combinations(edges, 3):
+        if path.index(edge1[0]) >= path.index(edge2[0]) or path.index(edge2[0]) >= path.index(edge3[0]):
+            break
+        else:
+            tmp_path = [node for node in path]
+
+            tmp_path[path.index(edge1[1])], tmp_path[path.index(edge2[0])] = tmp_path[path.index(edge2[0])], tmp_path[path.index(edge1[1])]
+            tmp_path[path.index(edge2[1])], tmp_path[path.index(edge3[0])] = tmp_path[path.index(edge3[0])], tmp_path[path.index(edge2[1])]
+
+            tmp_time = utils.calculate_time(tmp_path, times)
+
+            if tmp_time < better_time:
+                better_path = [node for node in tmp_path]
+                better_time = tmp_time
+
+    if better_path == []:
+        better_path = [node for node in path]
+
+    better_path, inserted = insert_nearest_free_node(nodes, better_path, tmax, times, profits, used_nodes)
+    return better_path
 
 def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
     """Recherche des points les plus proches du chemin"""
