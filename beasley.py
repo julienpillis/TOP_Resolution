@@ -123,6 +123,7 @@ def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
     node_inserted = True
     nearest_profit = 0
     while node_inserted:
+        # On essaie d'ajouter des noeuds tant que l'on en a ajouté un à la boucle précédente
         node_inserted = False
         for i in range(len(better_path) - 1):
             for new_node in coords:
