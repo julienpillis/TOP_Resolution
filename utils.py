@@ -6,7 +6,7 @@ import math
 from graph import *
 
 
-def visualize_paths(coordinates, paths, profit, exec_time):
+def visualize_paths(coordinates, paths, starting_node=None, ending_node=None, profit=-1, exec_time=-1):
     """Visualisation d'une solution du problème TOP"""
     x = [coord[0] for coord in coordinates]
     y = [coord[1] for coord in coordinates]
@@ -18,9 +18,14 @@ def visualize_paths(coordinates, paths, profit, exec_time):
         path_x = [coord[0] for coord in path]
         path_y = [coord[1] for coord in path]
 
-        plt.plot(path_x, path_y, marker='o', linestyle='-', label=f'Chemin {i + 1}')
+        plt.plot(path_x, path_y, marker='o', linestyle='-', label=f'Tournée {i + 1}')
 
-    plt.title('Visualisation des Chemins')
+    if starting_node is not None:
+        plt.plot(starting_node[0], starting_node[-1], marker='o', linestyle='', color='black', label='Noeud de départ')
+    if ending_node is not None:
+        plt.plot(ending_node[0], ending_node[-1], marker='o', linestyle='', color='grey', label='Noeud d\'arrivée')
+
+    plt.title('Visualisation des Tournées')
     plt.xlabel('Coordonnée X')
     plt.ylabel('Coordonnée Y')
     plt.legend()
@@ -100,7 +105,8 @@ def generate_convoy(nbVehicules, paths, profits, nodes):
         # inutile de continuer si tous les chemins ont été étudiés
 
     to_study.sort(key=lambda path: calculate_profit(path, profits), reverse=True)
-    return to_study[:n],sum(calculate_profit(path,profits) for path in to_study[:n])
+    return to_study[:n], sum(calculate_profit(path, profits) for path in to_study[:n])
+
 
 def extract_inner_tuples(array_of_tuples):
     """Extraire les tuples d'une liste de tuples"""
