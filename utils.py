@@ -1,6 +1,5 @@
 import matplotlib
-
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import math
 from graph import *
