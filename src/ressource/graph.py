@@ -1,4 +1,6 @@
 
+import random
+
 class Graph :
     def __init__(self,nodes,times,profits,maxTime,nbVehicules):
         self.nodes = self.setNodes(nodes)
@@ -6,6 +8,8 @@ class Graph :
         self.profits = self.setProfits(profits)
         self.maxTime = maxTime
         self.nbVehicules = nbVehicules
+        self.start_point = nodes[random.randint(0,len(nodes))]
+        self.end_point = nodes[random.randint(0,len(nodes))] # need to verify start/=end
 
     def getNodes(self): return self.nodes
     def getTimes(self): return self.times
