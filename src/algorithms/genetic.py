@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('..')
+sys.path.append('../')
 from src.ressource.utils import read_file_and_create_graph, drawGraph, Graph
 
 ################ LOAD DATA  ####################
@@ -10,7 +10,7 @@ current_path = os.getcwd()
 # Go up one directory to the parent directory
 parent_path = os.path.abspath(os.path.join(current_path, os.pardir))
 # Construct the path to the 'data' directory
-data_path = os.path.join(parent_path, 'data')
+data_path = os.path.join(parent_path, 'src/data')
 # Get a list of all items (files and folders) in the 'data' directory
 all_items = os.listdir(data_path)
 # Filter the items to include only folders that start with "Set"
@@ -128,6 +128,7 @@ class GeneticAlgorithm:
         candidates = []
         for _ in range(tournament_size):
             candidates.append(random.sample(self.population, tournament_size))
+        print(candidates)
         filtered=[sublist for sublist in candidates[0] if len(sublist)>0]
         selected_candidate = max(filtered, key=self.fitness_function)
         selected_candidate = max(selected_candidate,key=len)
