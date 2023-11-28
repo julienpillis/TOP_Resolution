@@ -128,7 +128,6 @@ class GeneticAlgorithm:
         candidates = []
         for _ in range(tournament_size):
             candidates.append(random.sample(self.population, tournament_size))
-        print(candidates)
         filtered=[sublist for sublist in candidates[0] if len(sublist)>0]
         selected_candidate = max(filtered, key=self.fitness_function)
         selected_candidate = max(selected_candidate,key=len)
