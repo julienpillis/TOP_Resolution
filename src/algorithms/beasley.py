@@ -1,8 +1,8 @@
 from itertools import combinations
 import sys
 sys.path.append('../')
-import ressource.utils as utils
-from ressource.graph import *
+import src.ressource.utils as utils
+from src.ressource.graph import *
 
 def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,int), tmax : int, nbVehicules :int, heuristic):
     """Algorithme de Beasley pour le TOP"""
@@ -142,7 +142,3 @@ def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
             better_path.insert(idx_to_be_placed, nearest_node)
 
     return better_path,node_inserted
-
-
-
-

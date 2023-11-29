@@ -6,7 +6,7 @@ from ressource.TSP_heuristics import *
 if __name__ == "__main__":
     for c in list(map(chr, range(ord('a'), ord('r') + 1))):
         # Exemple d'utilisation
-        file_path = f"Set_100_234/p4.3.{c}.txt"
+        file_path = f"src/data/Set_32_234/p1.2.{c}.txt"
         print(file_path)
         graph_object = read_file_and_create_graph(file_path)
 
@@ -26,4 +26,5 @@ if __name__ == "__main__":
         print("==============================")
 
         if convoy:
-            visualize_paths(graph_object.nodes, [path for path in convoy],convoy[0][0],convoy[0][-1],profit, temps_execution)
+            #visualize_paths(graph_object.nodes, [path for path in convoy],convoy[0][0],convoy[0][-1],profit, temps_execution)
+            drawGraph(graph_object,convoy)

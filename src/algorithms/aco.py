@@ -1,5 +1,7 @@
 import numpy as np
-import utils
+import sys
+sys.path.append('../')
+import src.ressource.utils as utils
 import beasley as bsl
 import math
 

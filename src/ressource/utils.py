@@ -6,7 +6,9 @@ from itertools import combinations
 from .graph import *
 import random
 import networkx as nx
+
 import matplotlib.pyplot as plt
+matplotlib.use('TkAgg')
 import matplotlib.patches as mpatches
 
 def drawGraph(graph: Graph, solution):
@@ -30,10 +32,9 @@ def drawGraph(graph: Graph, solution):
     for k, path in enumerate(solution):
         mapped_path = [graph.nodes.index(node) for node in path]
         truck_edges = [(mapped_path[i], mapped_path[i + 1]) for i in range(len(mapped_path) - 1)]
-        truck_edges.append((mapped_path[-1], mapped_path[0]))
         nx.draw_networkx_edges(G, pos=pos, edgelist=truck_edges, edge_color=colors[k], label=f'Path {k + 1}')
 
-        edge_labels.update({(mapped_path[i], mapped_path[i + 1]): f'{round(graph.profits[graph.nodes[i + 1]],1)}' for i in range(len(mapped_path) - 1)})
+        edge_labels.update({(mapped_path[i], mapped_path[i + 1]): f'{round(graph.times[graph.nodes[i + 1]],1)}' for i in range(len(mapped_path) - 1)})
 
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.start_point)], node_color='green', node_size=100)
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.end_point)], node_color='red', node_size=100)
@@ -109,28 +110,39 @@ def calculate_time(path, times):
     # Calcul de la durée du trajet
     return sum(times[(path[i],path[i+1])] for i in range(len(path)-1))
 
-def generate_convoy(nbVehicules, paths, profits):
+def generate_convoy(nbVehicules, paths, profits, nodes):
     """Attribution des tournées"""
-    all_combinations = []
-    n = nbVehicules if len(paths)>=nbVehicules else len(paths)
-    # Générer toutes les combinaisons de taille 'size'
-    for comb in combinations(paths, n):
-        used_nodes = []
-        valid_combination = True
-        for path in comb :
-            for node in path[1:-1]:
-                if node in used_nodes:
-                    valid_combination = False
-                else : used_nodes.append(node)
+    if not paths:
+        return [], -1
 
-        if valid_combination:
-            all_combinations.append(comb)
+    n = nbVehicules if len(paths) >= nbVehicules else len(paths)
 
-    # Calcul des maxs
-    evaluated_combination = []
-    for combination in all_combinations :
-        evaluated_combination.append((combination,sum(calculate_profit(path,profits)for path in combination)))
-    # On tri selon les profits
-    evaluated_combination.sort(key=lambda x: x[1], reverse=True)
-    if len(evaluated_combination)>0 : return evaluated_combination[0]
-    return []
+    to_study = [path for path in paths]
+
+    # Recherche des chemins avec des noeuds communs
+    for node in nodes:
+        paths_with_node = []
+        # Filtrer les chemins qui contiennent le nœud spécifié
+        for path in to_study:
+            if node in path[1:-1]:
+                paths_with_node.append(path)
+
+        if paths_with_node:
+            # Si des chemins avec une même noeud commun ont été trouvés, on ne garde que le meilleur
+            chemin_maximal = max(paths_with_node, key=lambda path: calculate_profit(path, profits))
+            paths_with_node.remove(chemin_maximal)
+            for path in paths_with_node:
+                to_study.remove(path)
+        # inutile de continuer si tous les chemins ont été étudiés
+
+    to_study.sort(key=lambda path: calculate_profit(path, profits), reverse=True)
+    return to_study[:n], sum(calculate_profit(path, profits) for path in to_study[:n])
+
+
+def extract_inner_tuples(array_of_tuples):
+    """Extraire les tuples d'une liste de tuples"""
+    inner_tuples = []
+    for outer_tuple in array_of_tuples:
+        for inner_tuple in outer_tuple:
+            inner_tuples.append(inner_tuple)
+    return inner_tuples

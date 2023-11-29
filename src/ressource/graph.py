@@ -8,8 +8,8 @@ class Graph :
         self.profits = self.setProfits(profits)
         self.maxTime = maxTime
         self.nbVehicules = nbVehicules
-        self.start_point = nodes[random.randint(0,len(nodes))]
-        self.end_point = nodes[random.randint(0,len(nodes))] # need to verify start/=end
+        self.start_point = nodes[0]
+        self.end_point = nodes[-1] # need to verify start/=end
 
     def getNodes(self): return self.nodes
     def getTimes(self): return self.times
