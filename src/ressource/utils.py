@@ -34,7 +34,7 @@ def drawGraph(graph: Graph, solution):
         truck_edges = [(mapped_path[i], mapped_path[i + 1]) for i in range(len(mapped_path) - 1)]
         nx.draw_networkx_edges(G, pos=pos, edgelist=truck_edges, edge_color=colors[k], label=f'Path {k + 1}')
 
-        edge_labels.update({(mapped_path[i], mapped_path[i + 1]): f'{round(graph.times[graph.nodes[i + 1]],1)}' for i in range(len(mapped_path) - 1)})
+        edge_labels.update({(mapped_path[i], mapped_path[i + 1]): f'{round(graph.times[(graph.nodes[i],graph.nodes[i + 1])],1)}' for i in range(len(mapped_path) - 1)})
 
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.start_point)], node_color='green', node_size=100)
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.end_point)], node_color='red', node_size=100)
