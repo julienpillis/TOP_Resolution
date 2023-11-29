@@ -6,12 +6,13 @@ from src.ressource.graph import *
 
 def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,int), tmax : int, nbVehicules :int, heuristic):
     """Algorithme de Beasley pour le TOP"""
-    heuristic_path = heuristic(graph.getNodes(),starting_point,ending_point)
-    convoy = []
-    paths = [] # Garde les chemins qui compatibles (temps <tmax)
 
-    #utils.visualize_paths(graph.nodes, [heuristic_path], 0, 0)
-    # On supprime les noeuds de départ et d'arrivée. Ils seront automatiquement ajouté dans un chemin
+    # Construction du chemin hamiltonien
+    heuristic_path = heuristic(graph.getNodes(),starting_point,ending_point)
+
+    paths = [] # Sauvegarde les chemins qui sont compatibles (temps <tmax)
+
+    # On supprime les noeuds de départ et d'arrivée. Ils seront automatiquement ajoutés dans un chemin
     heuristic_path.pop(heuristic_path.index(starting_point))
     heuristic_path.pop(heuristic_path.index(ending_point))
 
@@ -22,7 +23,6 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
         continue_insertion = True
         while continue_insertion:
             path.insert(prev_node_idx+1,heuristic_path[j])
-            #print(path,calculate_profit(path,graph.profits),calculate_time(path,graph.times))
             duration = utils.calculate_time(path,graph.times)
             if duration <= tmax :
                 paths.append([node for node in path])
@@ -35,32 +35,30 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
             else :
                 # Si tmax dépassé, on ne tente plus d'insertion
                 continue_insertion = False
-    #utils.visualize_paths(graph.nodes, [path for path in paths], 0, 0)
+
     solution,profits = utils.generate_convoy(nbVehicules, paths, graph.profits,graph.nodes)
     if solution == [] : return [],profits
     else :
-        print("Sum Profits before 2-Opt :", profits)
+        # Optimisation des solutions
         profits = 0
         solution = list(solution)
         for i in range(len(solution)):
             used_nodes = utils.extract_inner_tuples(solution)
-            print("(Before 2-Opt) Time path n°", i, "=", utils.calculate_time(solution[i], graph.times))
             better_path= two_opt(solution[i],graph.maxTime,graph.profits,graph.times,graph.nodes,used_nodes)
-            if better_path != []:
+            if better_path:
                 solution[i] = [node for node in better_path]
             profits += utils.calculate_profit(solution[i],graph.profits)
-            print("(After 2-Opt) Time path n°",i,"=",utils.calculate_time(solution[i],graph.times))
 
-        print("Sum Profits after 2-Opt :", profits)
         return solution, profits
 
 def two_opt(path,tmax, profits,times,nodes,used_nodes):
+    """Recherche locale THREE-OPT avec insertion des noeuds atteignables"""
 
-    # Génération des couples de noeuds
     edges = []
     better_path = []
     better_time = utils.calculate_time(path,times)
     for i in range(len(path) - 1):
+        # Génération des couples de noeuds
         edges.append((path[i], path[i+1]))
 
     for edge1,edge2 in combinations(edges,2) :
@@ -68,12 +66,10 @@ def two_opt(path,tmax, profits,times,nodes,used_nodes):
         if path.index(edge1[0])>=path.index(edge2[0]) or path.index(edge1[0])==path.index(edge2[0])+1  :
             break
         else :
-            # Croisement sur chemin temporaire
             tmp_path = [node for node in path]
 
-            edge_idx_first = tmp_path.index(edge1[1])
-            edge_idx_second = tmp_path.index(edge2[0])
-            tmp_path[edge_idx_first],tmp_path[edge_idx_second] = tmp_path[edge_idx_second],tmp_path[edge_idx_first]
+            # Croisement des arêtes
+            tmp_path[tmp_path.index(edge1[1])],tmp_path[tmp_path.index(edge2[0])] = tmp_path[tmp_path.index(edge2[0])],tmp_path[tmp_path.index(edge1[1])]
 
             tmp_time = utils.calculate_time(tmp_path,times)
             # Si la durée du nouveau chemin est améliorée, on enregistre le chemin
@@ -90,6 +86,7 @@ def two_opt(path,tmax, profits,times,nodes,used_nodes):
     return better_path
 
 def three_opt(path, tmax, profits, times, nodes, used_nodes):
+    """Recherche locale THREE-OPT avec insertion des noeuds atteignables"""
     edges = []
     better_path = []
     better_time = utils.calculate_time(path, times)

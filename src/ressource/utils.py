@@ -39,7 +39,7 @@ def drawGraph(graph: Graph, solution):
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.start_point)], node_color='green', node_size=100)
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.end_point)], node_color='red', node_size=100)
 
-    colorbox = [mpatches.Patch(color=colors[k], label=f'Path {k + 1}') for k in range(len(solution))]
+    colorbox = [mpatches.Patch(color=colors[k], label=f'Path {k + 1} | Profit : {calculate_profit(solution[k],graph.profits)}') for k in range(len(solution))]
     plt.legend(handles=colorbox, loc='best')
 
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
