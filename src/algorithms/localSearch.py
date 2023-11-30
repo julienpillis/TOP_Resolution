@@ -89,3 +89,6 @@ def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
             better_path.insert(idx_to_be_placed, nearest_node)
 
     return better_path,node_inserted
+
+
+optimization = [two_opt,three_opt]

@@ -229,3 +229,5 @@ def is_cycle(graph):
         uf.union(u, v)
 
     return False
+
+heuristics = [nearest_neighbor,farthest_insertion,nearest_insertion,best_insertion]
