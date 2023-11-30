@@ -3,6 +3,7 @@ import sys
 sys.path.append('../')
 import src.ressource.utils as utils
 import src.algorithms.beasley as bsl
+import src.algorithms.localSearch as localS
 import math
 
 Path = list[list[tuple[tuple[int,int]]]]
@@ -63,7 +64,7 @@ def ant_colony_optimization(graph : utils.Graph,
                 # ========================================================================#
 
                 #======================= Local Search ====================================#
-                path = bsl.two_opt([graph.nodes[i] for i in path], graph.maxTime, graph.profits, graph.times, graph.nodes,[graph.nodes[i] for i in path] + [graph.nodes[i] for i in used_nodes])
+                path = localS.two_opt([graph.nodes[i] for i in path], graph.maxTime, graph.profits, graph.times, graph.nodes,[graph.nodes[i] for i in path] + [graph.nodes[i] for i in used_nodes])
                 # ========================================================================#
                 norm_paths.append(path)
                 path = [graph.nodes.index(node) for node in path]
