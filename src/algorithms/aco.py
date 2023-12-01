@@ -13,7 +13,7 @@ def ant_colony_optimization(graph : utils.Graph,
                             starting_point : int,
                             ending_point : int,
                             n_ants : int = 20 ,
-                            n_iterations : int = 10,
+                            n_iterations : int = 50,
                             Ncycles : int = 20,
                             alpha : float = 1,
                             beta : float = 0.5,
@@ -53,7 +53,6 @@ def ant_colony_optimization(graph : utils.Graph,
         print(iteration)
         std_sol = [] # Solution au format standard (liste de tuples)
         for ant in range(n_ants):
-
             # ======================= Construction d'une solution =============================#
             sol_ant = constructSolution(graph ,no_visit,starting_point, ending_point, pheromone ,alpha, gamma, beta)
             # ========================================================================#
@@ -68,6 +67,7 @@ def ant_colony_optimization(graph : utils.Graph,
             # ========================================================================#
             std_sol.append(sol_ant)
 
+            print(sum(utils.calculate_profit(path,graph.profits) for path in sol_ant))
         #======================= Recherche de la meilleure solution trouvée par les fourmis ================================#
         sib = []
         max_quality = 0
@@ -91,7 +91,7 @@ def ant_colony_optimization(graph : utils.Graph,
         pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_rate, Pbest, Nni, Ncycles, iteration)
         #========================================================================#
 
-
+    print(sgb)
     return sgb, sum(utils.calculate_profit(path,graph.profits) for path in sgb)
 
 
@@ -112,7 +112,6 @@ def constructSolution(graph,no_visit, starting_point, ending_point,pheromone ,al
             tmp_path = [i for i in path]
             unvisited = np.where(np.logical_not(visited))[0]
             probabilities = np.zeros(len(unvisited))
-
             for i, unvisited_point in enumerate(unvisited):
                 # Calcul des probabilités de chaque noeud
                 rj = graph.profits[graph.nodes[unvisited_point]]
@@ -134,11 +133,9 @@ def constructSolution(graph,no_visit, starting_point, ending_point,pheromone ,al
             if utils.calculate_time([graph.nodes[i] for i in tmp_path], graph.times) < graph.maxTime:
                 # On insère après le dernier sommet ajouté (pas en dernière position car il s'agit du sommet de destination)
                 path.insert(-1, next_point)
+                used_nodes.append(next_point)
 
         # On signale que les sommets du chemin produit ne sont plus disponible
-        for node in path :
-            used_nodes.append(node)
-
         solution.append(path)
 
     return solution
@@ -158,6 +155,7 @@ def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,i
         # Renouvellement des phéromones tout les Ncycles
         pheromone.fill(t_max)
     else:
+
         if iteration % 5 == 0:
             sol = sgb
         else:
@@ -167,7 +165,7 @@ def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,i
             used_nodes += utils.extract_inner_tuples(path)
         for i in range(n_points - 1):
             for j in range(n_points):
-                pheromone[i][j] = pheromone[i][j] * (1 - evaporation_rate) + F(graph,sol) if (i,j) in used_nodes else 0
+                pheromone[i][j] = pheromone[i][j] * evaporation_rate + F(graph,sol) if (i,j) in used_nodes else 0
                 if pheromone[i][j] < t_min:
                     pheromone[i][j] = t_min
                 elif pheromone[i][j] > t_max:
