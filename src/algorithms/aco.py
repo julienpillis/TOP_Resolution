@@ -13,11 +13,11 @@ def ant_colony_optimization(graph : utils.Graph,
                             starting_point : int,
                             ending_point : int,
                             n_ants : int = 20 ,
-                            n_iterations : int = 50,
+                            n_iterations : int = 20,
                             Ncycles : int = 20,
                             alpha : float = 1,
-                            beta : float = 0.5,
-                            gamma : float = 0.5,
+                            beta : float = 30,
+                            gamma : float = 0.05,
                             evaporation_rate : float = 0.98,
                             Pbest: float =0.05) -> tuple[Path, Profit]:
     """
@@ -49,25 +49,37 @@ def ant_colony_optimization(graph : utils.Graph,
     sgb = []  # global best solution
     Nni = 0
     pheromone = np.ones((n_points, n_points))
+    count = {}
+    for node in graph.nodes:
+        count[graph.nodes.index(node)] = 0
     for iteration in range(n_iterations):
-        print(iteration)
         std_sol = [] # Solution au format standard (liste de tuples)
+
         for ant in range(n_ants):
             # ======================= Construction d'une solution =============================#
             sol_ant = constructSolution(graph ,no_visit,starting_point, ending_point, pheromone ,alpha, gamma, beta)
             # ========================================================================#
 
             #======================= Recherche Locale ====================================#
-            used_nodes = []
+            used_nodes = set()
             for path in sol_ant:
-                for node in path[1:-1]:
-                    used_nodes.append(node)
+                for node in path:
+                    used_nodes.add(node)
+
+
             for i in range(len(sol_ant)):
-                sol_ant[i] = localS.two_opt([graph.nodes[i] for i in sol_ant[i]], graph.maxTime, graph.profits, graph.times, graph.nodes,[graph.nodes[i] for i in used_nodes+no_visit])
+                sol_ant[i] = localS.two_opt([graph.nodes[i] for i in sol_ant[i]], graph.maxTime, graph.profits, graph.times, graph.nodes,[graph.nodes[i] for i in list(used_nodes)+no_visit])
+                for node in sol_ant[i]:
+                    used_nodes.add(graph.nodes.index(node))
             # ========================================================================#
             std_sol.append(sol_ant)
 
-            print(sum(utils.calculate_profit(path,graph.profits) for path in sol_ant))
+            val = F(graph, sol_ant)
+            for path in sol_ant:
+                for node in path:
+                    count[graph.nodes.index(node)]+= val
+
+
         #======================= Recherche de la meilleure solution trouvée par les fourmis ================================#
         sib = []
         max_quality = 0
@@ -88,10 +100,9 @@ def ant_colony_optimization(graph : utils.Graph,
         # ==================================================================================================================#
 
         #======================= Mise à jour des phéromones ================================#
-        pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_rate, Pbest, Nni, Ncycles, iteration)
+        pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_rate, Pbest, Nni, Ncycles, iteration,count)
         #========================================================================#
 
-    print(sgb)
     return sgb, sum(utils.calculate_profit(path,graph.profits) for path in sgb)
 
 
@@ -141,7 +152,7 @@ def constructSolution(graph,no_visit, starting_point, ending_point,pheromone ,al
     return solution
 
 
-def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,iteration):
+def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,iteration,count):
     """ Procédure de mise à jour des phéromones """
     n_points = len(graph.nodes)
 
@@ -165,7 +176,7 @@ def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,i
             used_nodes += utils.extract_inner_tuples(path)
         for i in range(n_points - 1):
             for j in range(n_points):
-                pheromone[i][j] = pheromone[i][j] * evaporation_rate + F(graph,sol) if (i,j) in used_nodes else 0
+                pheromone[i][j] = pheromone[i][j] * evaporation_rate + count[j]
                 if pheromone[i][j] < t_min:
                     pheromone[i][j] = t_min
                 elif pheromone[i][j] > t_max:
