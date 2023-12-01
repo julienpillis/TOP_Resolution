@@ -2,7 +2,7 @@ from itertools import combinations
 import src.ressource.utils as utils
 
 def two_opt(path,tmax, profits,times,nodes,used_nodes):
-    """Recherche locale THREE-OPT avec insertion des noeuds atteignables"""
+    """Recherche locale TWO-OPT avec insertion des noeuds atteignables"""
 
     edges = []
     better_path = []
@@ -65,7 +65,7 @@ def three_opt(path, tmax, profits, times, nodes, used_nodes):
     better_path, inserted = insert_nearest_free_node(nodes, better_path, tmax, times, profits, used_nodes)
     return better_path
 
-def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
+def insert_nearest_free_node(nodes, path, tmax, times, profits, used_nodes):
     """Recherche des points les plus proches du chemin"""
     better_path = [node for node in path]
     node_inserted = True
@@ -74,7 +74,7 @@ def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
         # On essaie d'ajouter des noeuds tant que l'on en a ajouté un à la boucle précédente
         node_inserted = False
         for i in range(len(better_path) - 1):
-            for new_node in coords:
+            for new_node in nodes:
                 if new_node not in used_nodes:
                     # Calcul de la pénalité (detour) que fait coûter l'ajout du noeud
                     detour = utils.distance(better_path[i], new_node) + utils.distance(new_node, better_path[i + 1]) - utils.distance(better_path[i], better_path[i + 1])
@@ -89,6 +89,5 @@ def insert_nearest_free_node(coords, path, tmax, times, profits, used_nodes):
             better_path.insert(idx_to_be_placed, nearest_node)
 
     return better_path,node_inserted
-
 
 optimization = [two_opt,three_opt]

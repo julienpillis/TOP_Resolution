@@ -54,6 +54,7 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
         return solution, profits
 
 def beasley_top_optimized(graph : Graph, starting_point : (int,int), ending_point : (int,int), tmax : int, nbVehicules :int):
+    """Application de toutes les heuristiques du PVC et de recherche locale lors de l'heuristique de Beasley"""
     best_convoy = []
     best_profit = 0
     for heuristic in tsp.heuristics :
@@ -64,7 +65,6 @@ def beasley_top_optimized(graph : Graph, starting_point : (int,int), ending_poin
                 best_profit = profit
             reversed_convoy,reversed_profit = beasley_top(graph,ending_point,starting_point,tmax,nbVehicules,heuristic,opt)
             if reversed_profit > best_profit:
-                print(reversed_convoy)
                 best_convoy = [list(reversed(path)) for path in reversed_convoy]
                 best_profit = reversed_profit
     return best_convoy,best_profit
