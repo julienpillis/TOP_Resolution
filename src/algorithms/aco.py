@@ -12,13 +12,13 @@ Profit = int
 def ant_colony_optimization(graph : utils.Graph,
                             starting_point : int,
                             ending_point : int,
-                            n_ants : int = 20 ,
+                            n_ants : int = 10,
                             n_iterations : int = 20,
-                            Ncycles : int = 20,
+                            Ncycles : int = 3,
                             alpha : float = 1,
                             beta : float = 30,
                             gamma : float = 0.05,
-                            evaporation_rate : float = 0.98,
+                            evaporation_value : float = 0.98,
                             Pbest: float =0.05) -> tuple[Path, Profit]:
     """
     Meta-heuristique Ant colony optimization adaptée au problème du TOP
@@ -30,7 +30,7 @@ def ant_colony_optimization(graph : utils.Graph,
     :param alpha: Importante des phéromones (coefficient)
     :param beta : Importance de l'information heuristique (coefficient)
     :param gamma : Influence de l'angle pour l'information heuristique (coefficient)
-    :param evaporation_rate : Le taux d'évaporation
+    :param evaporation_value : La variable pour calculer le taux d'évaporation
     :param Pbest : Probabilité de construire la meilleure solution trouvée quand les phéromones ont convergée vers Tmin ou Tmax
     :returns : les meilleurs chemins et le profit total
     """
@@ -100,7 +100,7 @@ def ant_colony_optimization(graph : utils.Graph,
         # ==================================================================================================================#
 
         #======================= Mise à jour des phéromones ================================#
-        pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_rate, Pbest, Nni, Ncycles, iteration,count)
+        pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_value, Pbest, Nni, Ncycles, iteration, count)
         #========================================================================#
 
     return sgb, sum(utils.calculate_profit(path,graph.profits) for path in sgb)
@@ -152,12 +152,12 @@ def constructSolution(graph,no_visit, starting_point, ending_point,pheromone ,al
     return solution
 
 
-def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,iteration,count):
+def pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_value, Pbest, Nni, Ncycles, iteration, count):
     """ Procédure de mise à jour des phéromones """
     n_points = len(graph.nodes)
 
     # Valeur maximale des phéromones sur un noeud
-    t_max = F(graph, sgb) / (1 - evaporation_rate)
+    t_max = F(graph, sgb) / (1 - evaporation_value)
 
     # Valeur minimale des phéromones sur un noeud
     t_min = (1 - (Pbest ** (1 / n_points))) / (((n_points / 2) - 1) * (Pbest ** (1 / n_points))* t_max)
@@ -167,7 +167,7 @@ def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,i
         pheromone.fill(t_max)
     else:
 
-        if iteration % 5 == 0:
+        if iteration % 3 == 0:
             sol = sgb
         else:
             sol = sib
@@ -176,7 +176,7 @@ def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,i
             used_nodes += utils.extract_inner_tuples(path)
         for i in range(n_points - 1):
             for j in range(n_points):
-                pheromone[i][j] = pheromone[i][j] * evaporation_rate + count[j]
+                pheromone[i][j] = pheromone[i][j] * evaporation_value # + count[j]
                 if pheromone[i][j] < t_min:
                     pheromone[i][j] = t_min
                 elif pheromone[i][j] > t_max:
@@ -185,4 +185,5 @@ def pheromoneUpdate(graph,pheromone,sgb,sib,evaporation_rate,Pbest,Nni,Ncycles,i
 
 def F(graph : utils.Graph,sol : list[Path]):
     """Fonction de qualité : permet d'évaluer la qualité d'un chemin"""
-    return sum(utils.calculate_profit(path[1:-1],graph.profits) for path in sol)/(sum(graph.profits[node] for node in graph.nodes[1:-1]))
+    #return sum(utils.calculate_profit(path[1:-1], graph.profits) for path in sol) / (sum(graph.profits[node] for node in graph.nodes[1:-1]))
+    return sum(utils.calculate_profit(path[1:-1], graph.profits) for path in sol)
