@@ -85,7 +85,9 @@ def insert_nearest_free_node(nodes, path, tmax, times, profits, used_nodes):
                         idx_to_be_placed = better_path.index(better_path[i]) + 1
                         node_inserted = True
 
-        if node_inserted :
+        if node_inserted:
+            if (nearest_node in better_path):
+                better_path.remove(nearest_node)
             better_path.insert(idx_to_be_placed, nearest_node)
 
     return better_path,node_inserted
