@@ -40,25 +40,6 @@ import random
 This function groups path by the number of vehicules
 """
 
-def get_unique_path(path):
-    unique_elements_set = []
-
-    for node in path:
-        if node in unique_elements_set:
-            unique_elements_set.remove(node)
-        unique_elements_set.append(node)
-
-    return unique_elements_set
-
-def is_valid_node_convoy(convoy):
-        for i,path1 in enumerate(convoy):
-            for node in path1[1:-1]:
-                for j,path2 in enumerate(convoy):
-                    if i!=j:
-                        if node in path2[1:-1]:
-                            return False
-        return True
-
 class GeneticAlgorithm:
     def __init__(self, graph : Graph, population_size, generations):
         self.graph = graph
@@ -111,23 +92,6 @@ class GeneticAlgorithm:
                 total_profit += profit
             return total_profit
     
-    def initialize_population(self):
-        population = []
-        for _ in range(self.population_size):
-            len_route=random.randint(4,len(self.graph.nodes)//2)
-            route=random.sample(range(2, len(self.graph.nodes)-1), len_route)
-            route.insert(0,1)
-            route.append(len(self.graph.nodes))
-            route=self.make_nodes_unique_path(route)
-            population.append(route)
-        return population
-    def iiiniiit_population(self):
-        numbers = list(range(1, len(self.graph.nodes)))
-        all_paths = permutations(numbers)
-        #filtered_paths = [[1] + list(path) + [len(self.graph.nodes)] for path in all_paths if utils.calculate_time(self.convert_index_to_node([0]+ list(path) + [len(self.graph.nodes)]),self.graph.times)<=self.graph.maxTime]
-        print()
-        return 0
-    
     def init_population(self):
         start=self.graph.start_point
         end=self.graph.end_point
@@ -160,16 +124,7 @@ class GeneticAlgorithm:
                     # Si tmax dépassé, on ne tente plus d'insertion
                     continue_insertion = False
         return paths
-    def is_valid_time_path(self, path):
-        total_time = 0
-        #print(path)
-        for i in range(len(path) - 1):
-            #print(path[i]," ",path[i+1])
-            current_node = self.graph.nodes[path[i]-1]
-            next_node =self.graph.nodes[path[i+1]-1]
-            total_time += self.graph.getTimes()[(current_node, next_node)]
-        return total_time <= self.graph.getMaxTime()
-    
+
     def fitness_function(self,path):
         total_profit = 0
         total_time = 0
@@ -200,17 +155,21 @@ class GeneticAlgorithm:
         return time
     
     def aex_crossover(self, path1, path2):
-        end_index=len(self.graph.nodes)
-            #print(path1)
+        end_index = len(self.graph.nodes)
+
         p1 = path1[1:-1]
         p2 = path2[1:-1]
+        
+        # Perform alternating edges crossover
         aex_child1 = self.alternating_edges_crossover(p1, p2)
         aex_child2 = self.alternating_edges_crossover(p2, p1)
-        child1=[1] + aex_child1 + [end_index]
-        child2=[1] + aex_child2 + [end_index]
 
-        return self.make_nodes_unique_path(child1), self.make_nodes_unique_path(child2)
+        # Ensure time limit and node uniqueness constraint
+        child1 = self.make_nodes_unique_path([1] + aex_child1 + [end_index])
+        child2 = self.make_nodes_unique_path([1] + aex_child2 + [end_index])
 
+        return child1, child2
+    
     def alternating_edges_crossover(self, parent1, parent2):
         child = [parent1[0]]
         visited = set([child[0]])
@@ -245,9 +204,8 @@ class GeneticAlgorithm:
                 mutated_path = self.inversion_mutation(mutated_path)
             
             # Ensure the mutated path is valid
-            #mutated_path = self.correct_solution(mutated_path, convoy)
             mutated_path=[1]+mutated_path+[len(self.graph.nodes)]
-            #print(mutated_path)
+
             # Add the mutated path to the convoy
             return self.make_nodes_unique_path(mutated_path)
         else:
@@ -310,12 +268,6 @@ class GeneticAlgorithm:
             node=self.graph.nodes[index-1]
             subset.append(node)
         return subset
-    def convert_node_to_index(self,path):
-        subset=[]
-        for node in path:
-            index=self.graph.nodes.index(node)
-            subset.append(index)
-        return subset
     
     def convert_convoy_index_to_node(self,convoy):
         result=[]
@@ -326,6 +278,7 @@ class GeneticAlgorithm:
                 subset.append(node)
             result.append(subset)
         return result
+    
     def sorting_key(self, path):
         return (len(path), self.get_profit(path), -self.calculate_time(path))
     
@@ -363,7 +316,6 @@ class GeneticAlgorithm:
         num_elites = max(1, int(self.population_size * elitism_ratio))
         print("TMAX: ",self.graph.maxTime)
         print("NbV: ",self.graph.nbVehicules)
-        best_solutions=[]
         self.population=[sol for sol in self.population if self.delete_useless_solutions(sol) == False]
         for generation in range(self.generations):
             print(f"Generation {generation + 1}")
@@ -377,10 +329,9 @@ class GeneticAlgorithm:
             for _ in range((self.population_size - len(elites)) // 2):
                 parent1=random.choice(self.population)
                 parent2=random.choice(self.population)
-                child1,child2=self.aex_crossover(parent1,parent2)
-                child1=self.mutation(child1,mutation_probability)
-                child2=self.mutation(child1,mutation_probability)
-                
+                child1_co,child2_co=self.aex_crossover(parent1,parent2)
+                child1=self.mutation(child1_co,mutation_probability)
+                child2=self.mutation(child2_co,mutation_probability)
                 if self.fitness_function(child1)>0:
                     new_population.append(child1)
                 if self.fitness_function(child2)>0:
@@ -395,7 +346,7 @@ class GeneticAlgorithm:
     
 
     
-ga = GeneticAlgorithm(graph_object, population_size=100*graph_object.nbVehicules, generations=10)
+ga = GeneticAlgorithm(graph_object, population_size=100*graph_object.nbVehicules, generations=5)
 
 start_time = time.time()
 result=ga.evolve()
