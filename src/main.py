@@ -2,11 +2,13 @@ from algorithms.beasley import *
 from ressource.utils import *
 import time
 from ressource.TSP_heuristics import *
+import src.algorithms.aco as aco
+import src.algorithms.localSearch as localS
 
 if __name__ == "__main__":
-    for c in list(map(chr, range(ord('a'), ord('r') + 1))):
+    for c in list(map(chr, range(ord('w'), ord('y') + 1))):
         # Exemple d'utilisation
-        file_path = f"src/data/Set_32_234/p1.2.{c}.txt"
+        file_path = f"src/data/Set_66_234/p5.4.{c}.txt"
         print(file_path)
         graph_object = read_file_and_create_graph(file_path)
 
@@ -14,10 +16,24 @@ if __name__ == "__main__":
         # Temps de départ
         temps_debut = time.time()
 
-        convoy, profit = beasley_top(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
-                                     graph_object.getMaxTime(), graph_object.getNbVehicules(), farthest_insertion)
 
-        print(convoy, profit)
+        #convoy, profit = beasley_top(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
+                                         #graph_object.getMaxTime(), graph_object.getNbVehicules(), farthest_insertion,localS.two_opt)
+
+        convoy, profit = aco.ant_colony_optimization(graph_object,0,len(graph_object.nodes)-1)
+
+
+        #print(profit)
+        #convoy, profit = beasley_top(graph_object, graph_object.getNodes()[-1],graph_object.getNodes()[0],
+                                     #graph_object.getMaxTime(), graph_object.getNbVehicules(), farthest_insertion,localS.three_opt)
+
+
+        #print(profit)
+        #convoy, profit = beasley_top_optimized(graph_object, graph_object.getNodes()[-1],graph_object.getNodes()[0],graph_object.getMaxTime(), graph_object.getNbVehicules())
+
+
+        print(profit)
+
         # Temps final après execution
         temps_fin = time.time()
 
