@@ -26,33 +26,22 @@ def nearest_neighbor(coords, start, end):
     return path
 
 def farthest_insertion(points, starting_point, ending_point):
-    """Heuristique d'insertion du plus point le plus lointain pour le TSP."""
-
     pts = [point for point in points]
     tour = [starting_point, ending_point]
 
-    pts.pop(pts.index(starting_point)) # suppression de départ
-    pts.pop(pts.index(ending_point)) # suppression de l'arrivée
+    pts.pop(pts.index(starting_point))  # suppression du départ
+    pts.pop(pts.index(ending_point))  # suppression de l'arrivée
 
+    while len(pts) > 0:
 
-    while len(pts) > 0 :
-        # Trouver le point le plus éloigné
-        max_dist = -1
-        farthest_point = (0, 0)
-        for i in range(len(pts)):
-            for point_tour in tour:
-                if utils.distance(pts[i], point_tour) > max_dist:
-                    max_dist = utils.distance(pts[i], point_tour)
-                    farthest_point = pts[i]
+        farthest_point = max(pts, key=lambda p: min(utils.distance(p, tour[i]) for i in range(len(tour) - 1)))
 
         # Trouver l'arête du tour actuel qui minimise l'ajout de longueur
         min_insertion_cost = float('inf')
         insert_index = 0
-        for i in range(len(tour) - 1):
-            # Variation de coût d'introduction du point le plus loin entre 2 noeuds
-            d = utils.distance(tour[i], farthest_point) + utils.distance(farthest_point, tour[i + 1]) - utils.distance(tour[i],tour[i + 1])
 
-            # Minimisation de la variation
+        for i in range(len(tour) - 1):
+            d = utils.distance(tour[i], farthest_point) + utils.distance(farthest_point, tour[i + 1]) - utils.distance(tour[i], tour[i + 1])
             if d < min_insertion_cost:
                 min_insertion_cost = d
                 insert_index = i + 1
@@ -65,35 +54,24 @@ def farthest_insertion(points, starting_point, ending_point):
 
 
 def nearest_insertion(points, starting_point, ending_point):
-    """Heuristique d'insertion du plus point le plus proche pour le TSP."""
-
     pts = [point for point in points]
     tour = [starting_point, ending_point]
 
-    pts.pop(pts.index(starting_point)) # suppression du départ
-    pts.pop(pts.index(ending_point)) # suppression de l'arrivée
+    pts.pop(pts.index(starting_point))  # suppression du départ
+    pts.pop(pts.index(ending_point))  # suppression de l'arrivée
 
+    while len(pts) > 0:
+        # Trouver le point le plus proche de n'importe quel point dans le tour actuel
+        nearest_point = min(pts, key=lambda p: min(utils.distance(p, tour[i]) for i in range(len(tour) - 1)))
 
-    while len(pts) > 0 :
-        # Trouver le point le plus proche
-        min_dist = float("inf")
-        nearest_point = (0, 0)
-        for i in range(len(pts)):
-            for point_tour in tour:
-                if utils.distance(pts[i], point_tour) < min_dist:
-                    min_dist = utils.distance(pts[i], point_tour)
-                    nearest_point = pts[i]
-
-        # Trouver l'arête du tour actuel qui minimise l'ajout de longueur
+        # Trouver l'emplacement optimal pour insérer le point le plus proche
         min_insertion_cost = float('inf')
         insert_index = 0
-        for i in range(len(tour) - 1):
-            # Variation de coût d'introduction du point le plus loin entre 2 noeuds
-            d = utils.distance(tour[i], nearest_point) + utils.distance(nearest_point, tour[i + 1]) - utils.distance(tour[i],tour[i + 1])
 
-            # Minimisation de la variation
-            if d < min_insertion_cost:
-                min_insertion_cost = d
+        for i in range(len(tour) - 1):
+            dist_to_tour = utils.distance(nearest_point, tour[i]) + utils.distance(nearest_point, tour[i + 1]) - utils.distance(tour[i], tour[i + 1])
+            if dist_to_tour < min_insertion_cost:
+                min_insertion_cost = dist_to_tour
                 insert_index = i + 1
 
         # Insérer le point le plus proche à l'emplacement identifié
@@ -104,32 +82,29 @@ def nearest_insertion(points, starting_point, ending_point):
 
 
 def best_insertion(points, starting_point, ending_point):
-    """Heuristique de la meilleure insertion pour le TSP."""
-
     pts = [point for point in points]
     tour = [starting_point, ending_point]
 
-    pts.pop(pts.index(starting_point)) # suppression du départ
-    pts.pop(pts.index(ending_point)) # suppression de l'arrivée
+    pts.pop(pts.index(starting_point))  # suppression du départ
+    pts.pop(pts.index(ending_point))  # suppression de l'arrivée
 
+    while len(pts) > 0:
+        # Trouver le point le plus proche de n'importe quel point dans le tour actuel
+        nearest_point = min(pts, key=lambda p: min(utils.distance(p, tour[i]) for i in range(len(tour) - 1)))
 
-    while len(pts) > 0 :
-
-        # Trouver l'arête du tour actuel qui minimise l'ajout de longueur pour l'insertion du point
+        # Trouver la paire de points (tour[i], tour[i+1]) avec la variation de coût minimale en ajoutant le point le plus proche
         min_insertion_cost = float('inf')
         insert_index = 0
-        for i in range(len(tour) - 1):
-            # Variation de coût d'introduction du point le plus loin entre 2 noeuds
-            d = utils.distance(tour[i], pts[0]) + utils.distance(pts[0], tour[i + 1]) - utils.distance(tour[i],tour[i + 1])
 
-            # Minimisation de la variation
-            if d < min_insertion_cost:
-                min_insertion_cost = d
+        for i in range(len(tour) - 1):
+            dist_to_tour = utils.distance(nearest_point, tour[i]) + utils.distance(nearest_point, tour[i + 1]) - utils.distance(tour[i], tour[i + 1])
+            if dist_to_tour < min_insertion_cost:
+                min_insertion_cost = dist_to_tour
                 insert_index = i + 1
 
         # Insérer le point le plus proche à l'emplacement identifié
-        tour.insert(insert_index, pts[0])
-        pts.pop(0)
+        tour.insert(insert_index, nearest_point)
+        pts.pop(pts.index(nearest_point))
 
     return tour
 

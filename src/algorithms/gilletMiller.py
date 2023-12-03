@@ -2,13 +2,13 @@ import math
 import src.ressource.utils as utils
 import src.algorithms.localSearch as localS
 
-def gillett_miller_top(graph, starting_point, ending_point, tmax, nbVehicules, localSearch):
+def gillett_miller_top(graph, localSearch):
     nodes = list(graph.getNodes())
-    nodes.pop(nodes.index(starting_point))
-    nodes.pop(nodes.index(ending_point))
+    nodes.pop(nodes.index(graph.start_point))
+    nodes.pop(nodes.index(graph.end_point))
 
     # Tri par ordre croissant polaire
-    nodes.sort(key=lambda point: polar_order(starting_point, point), reverse=True)
+    nodes.sort(key=lambda point: polar_order(graph.start_point, point), reverse=True)
 
     best_profit = 0
     best_solution = []
@@ -18,7 +18,7 @@ def gillett_miller_top(graph, starting_point, ending_point, tmax, nbVehicules, l
         paths = []
         current_arr = shift_array(nodes,start_index)
         for i in range(len(current_arr)):
-            path = [starting_point, ending_point]
+            path = [graph.start_point, graph.end_point]
             j = i
             prev_node_idx = 0
             continue_insertion = True
@@ -27,7 +27,7 @@ def gillett_miller_top(graph, starting_point, ending_point, tmax, nbVehicules, l
                 path.insert(prev_node_idx + 1, current_arr[j])
                 duration = utils.calculate_time(path, graph.times)
 
-                if duration <= tmax:
+                if duration <= graph.maxTime:
                     paths.append([node for node in path])
                     prev_node_idx += 1
                     j += 1
@@ -37,7 +37,7 @@ def gillett_miller_top(graph, starting_point, ending_point, tmax, nbVehicules, l
                 else:
                     continue_insertion = False
 
-        solution, profit = utils.gen_conv(nbVehicules, paths, graph.profits, graph.nodes)
+        solution, profit = utils.gen_conv(graph.nbVehicules, paths, graph.profits, graph.nodes)
 
         if solution == []:
             break
@@ -75,16 +75,16 @@ def shift_array(arr, start_index):
 
     return shifted_array
 
-def gillett_miller_top_optimized(graph : utils.Graph, starting_point : (int,int), ending_point : (int,int), tmax : int, nbVehicules :int):
+def gillett_miller_top_optimized(graph : utils.Graph):
     """Application de toutes les heuristiques du PVC et de recherche locale lors de l'heuristique de Beasley"""
     best_convoy = []
     best_profit = 0
     for opt in localS.optimization :
-        convoy,profit = gillett_miller_top(graph,starting_point,ending_point,tmax,nbVehicules,opt)
+        convoy,profit = gillett_miller_top(graph,opt)
         if profit > best_profit :
             best_convoy = convoy
             best_profit = profit
-        reversed_convoy,reversed_profit = gillett_miller_top(graph,ending_point,starting_point,tmax,nbVehicules,opt)
+        reversed_convoy,reversed_profit = gillett_miller_top(graph,opt)
         if reversed_profit > best_profit:
             best_convoy = [list(reversed(path)) for path in reversed_convoy]
             best_profit = reversed_profit
