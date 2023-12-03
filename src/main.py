@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
         convoy, profit = aco.ant_colony_optimization(graph_object,0,len(graph_object.nodes)-1)
 
+
         #print(profit)
         #convoy, profit = beasley_top(graph_object, graph_object.getNodes()[-1],graph_object.getNodes()[0],
                                      #graph_object.getMaxTime(), graph_object.getNbVehicules(), farthest_insertion,localS.three_opt)
