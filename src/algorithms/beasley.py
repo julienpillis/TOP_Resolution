@@ -38,7 +38,7 @@ def beasley_top(graph : Graph, starting_point : (int,int), ending_point : (int,i
                 # Si tmax dépassé, on ne tente plus d'insertion
                 continue_insertion = False
 
-    solution,profits = utils.generate_convoy(nbVehicules, paths, graph.profits,graph.nodes)
+    solution,profits = utils.gen_conv(nbVehicules, paths, graph.profits,graph.nodes)
     if solution == [] : return [],profits
     else :
         # Optimisation des solutions

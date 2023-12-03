@@ -14,6 +14,7 @@ def gillett_miller_top(graph, starting_point, ending_point, tmax, nbVehicules, l
     best_solution = []
 
     for start_index in range(len(nodes)):
+        # On va trouver une solution en commençant à chaque fois par un noeud différent
         paths = []
         current_arr = shift_array(nodes,start_index)
         for i in range(len(current_arr)):
@@ -36,7 +37,7 @@ def gillett_miller_top(graph, starting_point, ending_point, tmax, nbVehicules, l
                 else:
                     continue_insertion = False
 
-        solution, profit = utils.generate_convoy(nbVehicules, paths, graph.profits, graph.nodes)
+        solution, profit = utils.gen_conv(nbVehicules, paths, graph.profits, graph.nodes)
 
         if solution == []:
             break
