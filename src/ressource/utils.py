@@ -1,5 +1,5 @@
 import matplotlib
-#matplotlib.use('TkAgg')
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import math
 from itertools import combinations
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 #matplotlib.use('TkAgg')
 import matplotlib.patches as mpatches
 
-def drawGraph(graph: Graph, solution,filename="put filename",execution_time="put execution_time"):
+def drawGraph(graph: Graph, solution,filename="put filename",execution_time="put execution_time",profit=0):
     nbCustomers = len(graph.nodes)
     colors = ['#%06X' % random.randint(0, 0xFFFFFF) for _ in range(len(solution))]
     plt.figure(figsize=(10, 7))    
@@ -39,10 +39,13 @@ def drawGraph(graph: Graph, solution,filename="put filename",execution_time="put
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.start_point)], node_color='green', node_size=100)
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.end_point)], node_color='red', node_size=100)
 
-    colorbox = [mpatches.Patch(color=colors[k], label=f'Path {k + 1} | Profit : {calculate_profit(solution[k],graph.profits)} | Time : {calculate_time(solution[k],graph.times)}') for k in range(len(solution))]
-    
-    plt.text(0, -0.1, f'File: {filename}', transform=plt.gca().transAxes)
-    plt.text(0, -0.13, f'Execution Time: {execution_time:.2f} seconds', transform=plt.gca().transAxes)
+    colorbox = [mpatches.Patch(color=colors[k], label=f'Path {k + 1} | Profit : {calculate_profit(solution[k],graph.profits)} | Time : {round(calculate_time(solution[k],graph.times),3)}') for k in range(len(solution))]
+
+    plt.text(0, -0.07, f'Profit: {profit:.2f}', transform=plt.gca().transAxes)
+    plt.text(0, -0.1, f'Execution Time: {execution_time:.2f} seconds', transform=plt.gca().transAxes)
+    plt.text(0, -0.13, f'File: {filename}', transform=plt.gca().transAxes)
+
+
     plt.legend(handles=colorbox, loc='best')
 
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')

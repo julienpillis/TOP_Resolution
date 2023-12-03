@@ -20,9 +20,9 @@ if __name__ == "__main__":
 
         #convoy, profit = gillett_miller_top(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
                                          #graph_object.getMaxTime(), graph_object.getNbVehicules(),localS.two_opt)
-        convoy, profit = gillett_miller_top_optimized(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
-                                            graph_object.getMaxTime(), graph_object.getNbVehicules())
-        #convoy, profit = aco.ant_colony_optimization(graph_object,0,len(graph_object.nodes)-1)
+        #convoy, profit = gillett_miller_top_optimized(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
+                                            #graph_object.getMaxTime(), graph_object.getNbVehicules())
+        convoy, profit = aco.ant_colony_optimization(graph_object,0,len(graph_object.nodes)-1)
 
 
         #print(profit)
@@ -33,12 +33,13 @@ if __name__ == "__main__":
         #print(profit)
         #convoy, profit = beasley_top_optimized(graph_object, graph_object.getNodes()[-1],graph_object.getNodes()[0],graph_object.getMaxTime(), graph_object.getNbVehicules())
 
+        # Temps final après execution
+        temps_fin = time.time()
 
         print(profit)
         print(convoy)
 
-        # Temps final après execution
-        temps_fin = time.time()
+
 
         # Durée d'execution
         temps_execution = temps_fin - temps_debut
@@ -46,4 +47,4 @@ if __name__ == "__main__":
 
         if convoy:
             #visualize_paths(graph_object.nodes, [path for path in convoy],convoy[0][0],convoy[0][-1],profit, temps_execution)
-            drawGraph(graph_object,convoy)
+            drawGraph(graph_object,convoy,file_path,temps_execution,profit)
