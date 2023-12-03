@@ -173,7 +173,7 @@ def fletcher(points, starting_point, ending_point):
         times.pop(0)
 
 
-    # Réordonnancement du tableau
+    # Réordonnancement du tableau (on remet les arêtes dans le bon ordre pour former un chemin)
     no_match = [node for node in utils.extract_inner_tuples(edges) if utils.extract_inner_tuples(edges).count(node)==1] # Récupération des noeuds n'ayant pas 2 arêtes
     ordered_edges = [(starting_point,no_match[0])]
     while len(edges) > 0:
@@ -211,6 +211,7 @@ class UnionFind:
                 self.rank[root_i] += 1
 
 def is_cycle(graph):
+    """Détection de cycle dans le graphe/ensemble d'arêtes par la structure de données Union-Find"""
     coord_to_index = {}  # Dictionnaire pour mapper les coordonnées aux indices
     index = 0
 
@@ -230,4 +231,4 @@ def is_cycle(graph):
 
     return False
 
-heuristics = [nearest_neighbor,farthest_insertion,nearest_insertion,best_insertion]
+heuristics = [nearest_neighbor,farthest_insertion,nearest_insertion,best_insertion,fletcher]

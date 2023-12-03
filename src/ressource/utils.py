@@ -8,10 +8,10 @@ import random
 import networkx as nx
 
 import matplotlib.pyplot as plt
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 import matplotlib.patches as mpatches
 
-def drawGraph(graph: Graph, solution):
+def drawGraph(graph: Graph, solution,filename="put filename",execution_time="put execution_time"):
     nbCustomers = len(graph.nodes)
     colors = ['#%06X' % random.randint(0, 0xFFFFFF) for _ in range(len(solution))]
     plt.figure(figsize=(10, 7))    
@@ -39,12 +39,25 @@ def drawGraph(graph: Graph, solution):
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.start_point)], node_color='green', node_size=100)
     nx.draw_networkx_nodes(G, pos=pos, nodelist=[graph.nodes.index(graph.end_point)], node_color='red', node_size=100)
 
-    colorbox = [mpatches.Patch(color=colors[k], label=f'Path {k + 1} | Profit : {calculate_profit(solution[k],graph.profits)}') for k in range(len(solution))]
+    colorbox = [mpatches.Patch(color=colors[k], label=f'Path {k + 1} | Profit : {calculate_profit(solution[k],graph.profits)} | Time : {calculate_time(solution[k],graph.times)}') for k in range(len(solution))]
+    
+    plt.text(0, -0.1, f'File: {filename}', transform=plt.gca().transAxes)
+    plt.text(0, -0.13, f'Execution Time: {execution_time:.2f} seconds', transform=plt.gca().transAxes)
     plt.legend(handles=colorbox, loc='best')
 
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
     
     plt.show()
+
+def calculate_time_path(path,times):
+    total_time = times[(path[0], path[1])]
+    for i,current_node in enumerate(path[1:-1]):
+        next_node = path[i + 2]
+        if current_node==next_node:
+            total_time+=0
+        else:
+            total_time+=times[(current_node, next_node)]
+    return round(total_time,3)
 
 def visualize_paths(coordinates, paths, profit, exec_time):
     """Visualisation d'une solution du problème TOP"""
@@ -138,7 +151,46 @@ def generate_convoy(nbVehicules, paths, profits, nodes):
     to_study.sort(key=lambda path: calculate_profit(path, profits), reverse=True)
     return to_study[:n], sum(calculate_profit(path, profits) for path in to_study[:n])
 
-
+def gen_conv(nbVehicules, paths, profits, nodes):
+    """Attribution des tournées"""
+    if not paths:
+        return [], -1
+    n = nbVehicules if len(paths) >= nbVehicules else len(paths)
+    to_study = paths
+    #
+    nodes_paths={}
+    for node in nodes[1:-1]:
+        paths_with_node = []
+        for path in to_study:
+            if node in path[1:-1]:
+                paths_with_node.append((calculate_profit(path, profits),path))
+        nodes_paths[node]=paths_with_node if len(paths_with_node)>0 else None
+    #
+    best_solutions=[]
+    for node in nodes[1:-1]:
+        if nodes_paths[node]:
+            _,max_profit_path = max(nodes_paths[node], key=lambda x: x[0])
+        
+        if max_profit_path in best_solutions:
+                continue
+        
+        best_solutions.append(max_profit_path)
+    
+    best_solutions=sorted(best_solutions,key=lambda x: calculate_profit(x, profits),reverse=True)
+    #
+    chosen=[best_solutions[0]]
+    for i in range(1,len(best_solutions)):
+        exist=False
+        for solution in chosen:
+            exist = any(node in solution[1:-1] for node in best_solutions[i][1:-1])
+            if exist:
+                break
+        if not exist:
+            chosen.append(best_solutions[i])
+    #
+    n = nbVehicules if len(chosen) >= nbVehicules else len(chosen)
+    return chosen[:n], sum(calculate_profit(path, profits) for path in best_solutions[:n])
+  
 def extract_inner_tuples(array_of_tuples):
     """Extraire les tuples d'une liste de tuples"""
     inner_tuples = []
