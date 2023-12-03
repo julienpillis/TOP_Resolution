@@ -3,6 +3,7 @@ from ressource.utils import *
 import time
 from ressource.TSP_heuristics import *
 import src.algorithms.aco as aco
+from algorithms.gilletMiller import *
 import src.algorithms.localSearch as localS
 
 if __name__ == "__main__":
@@ -17,10 +18,11 @@ if __name__ == "__main__":
         temps_debut = time.time()
 
 
-        #convoy, profit = beasley_top(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
-                                         #graph_object.getMaxTime(), graph_object.getNbVehicules(), farthest_insertion,localS.two_opt)
-
-        convoy, profit = aco.ant_colony_optimization(graph_object,0,len(graph_object.nodes)-1)
+        #convoy, profit = gillett_miller_top(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
+                                         #graph_object.getMaxTime(), graph_object.getNbVehicules(),localS.two_opt)
+        convoy, profit = gillett_miller_top_optimized(graph_object, graph_object.getNodes()[0], graph_object.getNodes()[-1],
+                                            graph_object.getMaxTime(), graph_object.getNbVehicules())
+        #convoy, profit = aco.ant_colony_optimization(graph_object,0,len(graph_object.nodes)-1)
 
         #print(profit)
         #convoy, profit = beasley_top(graph_object, graph_object.getNodes()[-1],graph_object.getNodes()[0],
@@ -32,6 +34,7 @@ if __name__ == "__main__":
 
 
         print(profit)
+        print(convoy)
 
         # Temps final après execution
         temps_fin = time.time()
