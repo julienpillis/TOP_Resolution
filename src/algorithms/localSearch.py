@@ -7,26 +7,31 @@ def two_opt(path,tmax, profits,times,nodes,used_nodes):
     edges = []
     better_path = []
     better_time = utils.calculate_time(path,times)
+    optimized = True
+
     for i in range(len(path) - 1):
         # Génération des couples de noeuds
         edges.append((path[i], path[i+1]))
 
-    for edge1,edge2 in combinations(edges,2) :
-        # Si la première arête est après la deuxième ou si elles sont contigues, on ne respecte pas le critère
-        if path.index(edge1[0])>=path.index(edge2[0]) or path.index(edge1[0])==path.index(edge2[0])+1  :
-            break
-        else :
-            tmp_path = [node for node in path]
+    while optimized :
+        optimized = False
+        for edge1,edge2 in combinations(edges,2) :
+            # Si la première arête est après la deuxième ou si elles sont contigues, on ne respecte pas le critère
+            if path.index(edge1[0])>=path.index(edge2[0]) or path.index(edge1[0])==path.index(edge2[0])+1  :
+                break
+            else :
+                tmp_path = [node for node in path]
 
-            # Croisement des arêtes
-            tmp_path[tmp_path.index(edge1[1])],tmp_path[tmp_path.index(edge2[0])] = tmp_path[tmp_path.index(edge2[0])],tmp_path[tmp_path.index(edge1[1])]
+                # Croisement des arêtes
+                tmp_path[tmp_path.index(edge1[1])],tmp_path[tmp_path.index(edge2[0])] = tmp_path[tmp_path.index(edge2[0])],tmp_path[tmp_path.index(edge1[1])]
 
-            tmp_time = utils.calculate_time(tmp_path,times)
-            # Si la durée du nouveau chemin est améliorée, on enregistre le chemin
-            if tmp_time<better_time :
-                # Sauvegarde du chemin en comme un meilleur chemin
-                better_path = [node for node in tmp_path]
-                better_time= tmp_time
+                tmp_time = utils.calculate_time(tmp_path,times)
+                # Si la durée du nouveau chemin est améliorée, on enregistre le chemin
+                if tmp_time<better_time :
+                    # Sauvegarde du chemin en comme un meilleur chemin
+                    better_path = [node for node in tmp_path]
+                    better_time= tmp_time
+                    optimized = True
 
     if not better_path:
         better_path = [node for node in path]
@@ -40,24 +45,28 @@ def three_opt(path, tmax, profits, times, nodes, used_nodes):
     edges = []
     better_path = []
     better_time = utils.calculate_time(path, times)
+    optimized = True
 
     for i in range(len(path) - 1):
         edges.append((path[i], path[i+1]))
 
-    for edge1, edge2, edge3 in combinations(edges, 3):
-        if path.index(edge1[0]) >= path.index(edge2[0]) or path.index(edge2[0]) >= path.index(edge3[0]):
-            break
-        else:
-            tmp_path = [node for node in path]
+    while optimized :
+        optimized = False
+        for edge1, edge2, edge3 in combinations(edges, 3):
+            if path.index(edge1[0]) >= path.index(edge2[0]) or path.index(edge2[0]) >= path.index(edge3[0]):
+                break
+            else:
+                tmp_path = [node for node in path]
 
-            tmp_path[path.index(edge1[1])], tmp_path[path.index(edge2[0])] = tmp_path[path.index(edge2[0])], tmp_path[path.index(edge1[1])]
-            tmp_path[path.index(edge2[1])], tmp_path[path.index(edge3[0])] = tmp_path[path.index(edge3[0])], tmp_path[path.index(edge2[1])]
+                tmp_path[path.index(edge1[1])], tmp_path[path.index(edge2[0])] = tmp_path[path.index(edge2[0])], tmp_path[path.index(edge1[1])]
+                tmp_path[path.index(edge2[1])], tmp_path[path.index(edge3[0])] = tmp_path[path.index(edge3[0])], tmp_path[path.index(edge2[1])]
 
-            tmp_time = utils.calculate_time(tmp_path, times)
+                tmp_time = utils.calculate_time(tmp_path, times)
 
-            if tmp_time < better_time:
-                better_path = [node for node in tmp_path]
-                better_time = tmp_time
+                if tmp_time < better_time:
+                    better_path = [node for node in tmp_path]
+                    better_time = tmp_time
+                    optimized = True
 
     if better_path == []:
         better_path = [node for node in path]

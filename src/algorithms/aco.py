@@ -160,7 +160,10 @@ def pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_value, Pbest, Nni, N
     t_max = F(graph, sgb) / (1 - evaporation_value)
 
     # Valeur minimale des phéromones sur un noeud
-    t_min = (1 - (Pbest ** (1 / n_points))) / (((n_points / 2) - 1) * (Pbest ** (1 / n_points))* t_max)
+    if (((n_points / 2) - 1) * (Pbest(1 / n_points)) * t_max) != 0:
+        t_min = (1 - (Pbest(1 / n_points))) / (((n_points / 2) - 1) * (Pbest ** (1 / n_points)) * t_max)
+    else:
+        t_min = t_max
 
     if Nni == Ncycles:
         # Renouvellement des phéromones tout les Ncycles
@@ -176,7 +179,7 @@ def pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_value, Pbest, Nni, N
             used_nodes += utils.extract_inner_tuples(path)
         for i in range(n_points - 1):
             for j in range(n_points):
-                pheromone[i][j] = pheromone[i][j] * evaporation_value # + count[j]
+                pheromone[i][j] = pheromone[i][j] * evaporation_value  + count[j]
                 if pheromone[i][j] < t_min:
                     pheromone[i][j] = t_min
                 elif pheromone[i][j] > t_max:
