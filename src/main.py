@@ -27,8 +27,8 @@ if __name__ == "__main__":
         # Temps final après execution
         temps_fin = time.time()
 
-        print(profit)
-        print(convoy)
+        print("Profit = ",profit)
+        print("Solution = ",convoy)
 
 
 
