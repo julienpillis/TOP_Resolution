@@ -13,4 +13,4 @@ To execute the genetic.py:
 - run : $ python algorithms/genetic.py
 - install the missing libraries (Optional : make a venv before staring installing)
 
-Les autres algorithmes sont utilisables dans le fichier *main.py*
+Les autres algorithmes sont utilisables via le fichier *main.py*
