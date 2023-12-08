@@ -32,7 +32,7 @@ def two_opt(path,tmax, profits,times,nodes,used_nodes):
     if not better_path:
         better_path = [node for node in path]
 
-    # Ajout des noeuds les plus proches et insérables TO DO: voir si déplacer en dehors de la fonction
+    # Ajout des noeuds les plus proches et insérables
     better_path,inserted = insert_nearest_free_node(nodes,better_path, tmax, times,profits,used_nodes)
     return better_path
 
