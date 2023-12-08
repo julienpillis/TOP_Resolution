@@ -160,8 +160,9 @@ def pheromoneUpdate(graph, pheromone, sgb, sib, evaporation_value, Pbest, Nni, N
     t_max = F(graph, sgb) / (1 - evaporation_value)
 
     # Valeur minimale des phéromones sur un noeud
-    if (((n_points / 2) - 1) * (Pbest(1 / n_points)) * t_max) != 0:
-        t_min = (1 - (Pbest(1 / n_points))) / (((n_points / 2) - 1) * (Pbest ** (1 / n_points)) * t_max)
+
+    if (((n_points / 2) - 1) * (Pbest*(1 / n_points)) * t_max) != 0:
+        t_min = (1 - (Pbest*(1 / n_points))) / (((n_points / 2) - 1) * (Pbest ** (1 / n_points)) * t_max)
     else:
         t_min = t_max
 

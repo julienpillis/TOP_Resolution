@@ -170,6 +170,7 @@ def gen_conv(nbVehicules, paths, profits, nodes):
         nodes_paths[node]=paths_with_node if len(paths_with_node)>0 else None
     #
     best_solutions=[]
+    max_profit_path = []
     for node in nodes[1:-1]:
         if nodes_paths[node]:
             _,max_profit_path = max(nodes_paths[node], key=lambda x: x[0])

@@ -3,11 +3,12 @@ import src.ressource.utils as utils
 
 def two_opt(path,tmax, profits,times,nodes,used_nodes):
     """Recherche locale TWO-OPT avec insertion des noeuds atteignables"""
+    # Complexité : O(n^3)
 
     edges = []
-    better_path = []
-    better_time = utils.calculate_time(path,times)
+    better_path = [node for node in path]
     optimized = True
+    prev_time = 0
 
     for i in range(len(path) - 1):
         # Génération des couples de noeuds
@@ -20,18 +21,13 @@ def two_opt(path,tmax, profits,times,nodes,used_nodes):
             if path.index(edge1[0])>=path.index(edge2[0]) or path.index(edge1[0])==path.index(edge2[0])+1  :
                 break
             else :
-                tmp_path = [node for node in path]
-
-                # Croisement des arêtes
-                tmp_path[tmp_path.index(edge1[1])],tmp_path[tmp_path.index(edge2[0])] = tmp_path[tmp_path.index(edge2[0])],tmp_path[tmp_path.index(edge1[1])]
-
-                tmp_time = utils.calculate_time(tmp_path,times)
                 # Si la durée du nouveau chemin est améliorée, on enregistre le chemin
-                if tmp_time<better_time :
-                    # Sauvegarde du chemin en comme un meilleur chemin
-                    better_path = [node for node in tmp_path]
-                    better_time= tmp_time
+                if  times[(edge1[0],edge1[1])] + times[(edge2[0],edge2[1])] > times[(edge1[0],edge2[0])] + times[(edge1[1],edge2[1])] and prev_time < times[(edge1[0],edge1[1])] + times[(edge2[0],edge2[1])] - times[(edge1[0],edge2[0])] + times[(edge1[1],edge2[1])]:
+                    prev_time = times[(edge1[0],edge1[1])] + times[(edge2[0],edge2[1])] - times[(edge1[0],edge2[0])] + times[(edge1[1],edge2[1])]
+                    # Croisement des arêtes
+                    better_path[better_path.index(edge1[1])],better_path[better_path.index(edge2[0])] = better_path[better_path.index(edge2[0])],better_path[better_path.index(edge1[1])]
                     optimized = True
+
 
     if not better_path:
         better_path = [node for node in path]
@@ -75,24 +71,25 @@ def three_opt(path, tmax, profits, times, nodes, used_nodes):
     return better_path
 
 def insert_nearest_free_node(nodes, path, tmax, times, profits, used_nodes):
-    """Recherche des points les plus proches du chemin"""
+    """Recherche des points les plus proches du chemin
+       Complexité : O(n^3)"""
     better_path = [node for node in path]
     node_inserted = True
     nearest_profit = 0
+    unused_nodes = [node for node in nodes if node not in used_nodes]
     while node_inserted:
         # On essaie d'ajouter des noeuds tant que l'on en a ajouté un à la boucle précédente
         node_inserted = False
         for i in range(len(better_path) - 1):
-            for new_node in nodes:
-                if new_node not in used_nodes:
-                    # Calcul de la pénalité (detour) que fait coûter l'ajout du noeud
-                    detour = utils.distance(better_path[i], new_node) + utils.distance(new_node, better_path[i + 1]) - utils.distance(better_path[i], better_path[i + 1])
-                    if utils.calculate_time(better_path, times) + detour <= tmax and nearest_profit < profits[new_node]:
-                        # Si l'ajout du noeud ne fait pas dépasser la durée maximale du trajet, on peut l'ajouter
-                        nearest_node = new_node
-                        nearest_profit = profits[new_node]
-                        idx_to_be_placed = better_path.index(better_path[i]) + 1
-                        node_inserted = True
+            for new_node in unused_nodes:
+                # Calcul de la pénalité (detour) que fait coûter l'ajout du noeud
+                detour = utils.distance(better_path[i], new_node) + utils.distance(new_node, better_path[i + 1]) - utils.distance(better_path[i], better_path[i + 1])
+                if utils.calculate_time(better_path, times) + detour <= tmax and nearest_profit < profits[new_node]:
+                    # Si l'ajout du noeud ne fait pas dépasser la durée maximale du trajet, on peut l'ajouter
+                    nearest_node = new_node
+                    nearest_profit = profits[new_node]
+                    idx_to_be_placed = better_path.index(better_path[i]) + 1
+                    node_inserted = True
 
         if node_inserted:
             if (nearest_node in better_path):
