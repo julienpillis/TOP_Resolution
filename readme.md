@@ -6,7 +6,7 @@ Ce problème trouve des applications concrètes dans des domaines tels que la lo
 
 Dans ce projet, vous trouverez les différents algorithmes de résolution du TOP que nous avons implémentés.
 
-**Instruction**
+**Instructions**
 
 To execute the genetic.py:
 - put yourself in src folder using terminal
